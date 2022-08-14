@@ -8,6 +8,7 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
+      - run: pip install --user ansible
       - run: sudo aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --profile default2 --region us-east-1 --output text >> inventory
       - save_cache:
           key: "inventory-file"
