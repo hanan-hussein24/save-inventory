@@ -1,0 +1,33 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+# Test Pipeline
+jobs:
+  build:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: sudo aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --profile default2 --region us-east-1 --output text >> inventory
+      - save_cache:
+          key: "inventory-file"
+          paths:
+            - /inventory
+     
+  test:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - "inventory-file"
+      - run: cat inventory
+
+workflows:
+  my-workflow:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
